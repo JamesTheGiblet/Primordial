@@ -3,11 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evolutionary Art Generator</title>
+    <title>Evolutionary Art Generator - Create Evolving Digital Masterpieces</title>
+    
+    <!-- Favicon - Tiny evolving shape -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='8' fill='%23ff6b6b'/><polygon points='16,8 24,24 8,24' fill='%234ecdc4' opacity='0.7'/><rect x='12' y='12' width='8' height='8' fill='%23feca57' opacity='0.5' rx='2'/></svg>">
+    
+    <!-- Meta Tags for Social Media -->
+    <meta name="description" content="An interactive evolutionary art generator that uses genetic algorithms to create and evolve stunning digital artwork. Watch as shapes, colors, and movements evolve through natural selection.">
+    <meta name="keywords" content="evolutionary art, genetic algorithm, digital art, interactive art, procedural generation, artificial life">
+    <meta name="author" content="Evolutionary Art System">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://github.com/JamesTheGiblet/Primordial">
+    <meta property="og:title" content="Evolutionary Art Generator - Digital Evolution in Action">
+    <meta property="og:description" content="Create stunning digital artwork through genetic algorithms. Watch as art evolves through natural selection, mutation, and crossover in real-time.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/JamesTheGiblet/Primordial/main/preview.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://github.com/JamesTheGiblet/Primordial">
+    <meta property="twitter:title" content="Evolutionary Art Generator - Digital Evolution in Action">
+    <meta property="twitter:description" content="Create stunning digital artwork through genetic algorithms. Watch as art evolves through natural selection, mutation, and crossover in real-time.">
+    <meta property="twitter:image" content="https://raw.githubusercontent.com/JamesTheGiblet/Primordial/main/preview.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
+        :root {
+            /* Dark theme (default) */
+            --bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            --text-color: white;
+            --panel-bg: rgba(0, 0, 0, 0.3);
+            --button-bg: rgba(255, 255, 255, 0.1);
+            --button-hover: rgba(255, 255, 255, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        [data-theme="light"] {
+            /* Light theme */
+            --bg-gradient: linear-gradient(135deg, #e3f2fd, #fce4ec, #fff8e1);
+            --text-color: #333;
+            --panel-bg: rgba(255, 255, 255, 0.8);
+            --button-bg: rgba(0, 0, 0, 0.1);
+            --button-hover: rgba(0, 0, 0, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --border-color: rgba(0, 0, 0, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -16,10 +63,83 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
+            background: var(--bg-gradient);
+            color: var(--text-color);
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Loading Screen Styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-gradient);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--text-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .loading-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: var(--text-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes keyboardHintFade {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-50%) translateY(-10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(-50%) translateY(0); 
+            }
+        }
+        
+        .keyboard-hint {
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
         
         .container {
@@ -31,16 +151,36 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--panel-bg);
             border-radius: 15px;
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--button-hover);
+            transform: translateY(-1px);
         }
         
         h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 4px var(--shadow-color);
         }
         
         .subtitle {
@@ -161,6 +301,10 @@
         
         .btn-teal {
             background: linear-gradient(135deg, #00b4db, #0083b0);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
         }
         
         .environment-btn, .preset-combo-btn {
@@ -535,10 +679,21 @@
     </style>
 </head>
 <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Initializing Evolutionary Art System...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-bar" id="loadingProgressBar"></div>
+        </div>
+        <div class="loading-text" id="loadingStatus">Preparing genetic algorithms...</div>
+    </div>
+
     <div class="container">
         <header>
-            <h1>Evolutionary Art Generator</h1>
-            <p class="subtitle">Advanced genetic algorithms for creative art evolution</p>
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">🌙</button>
+            <h1>PRIMORDIAL</h1>
+            <p class="subtitle">An Evolutionary Art Engine</p>
         </header>
         
         <div class="main-content">
@@ -619,7 +774,8 @@
                     
                     <div class="btn-group">
                         <button id="resetBtn" class="btn-danger">Reset</button>
-                        <button id="saveBtn" class="btn-success">Save Artwork</button>
+                        <button id="saveBtn" class="btn-success">Save PNG</button>
+                        <button id="saveSvgBtn" class="btn-info">Save SVG</button>
                         <button id="exportHallOfFame" class="btn-purple">Export Hall of Fame</button>
                     </div>
                 </div>
@@ -862,6 +1018,9 @@
             // =================================================================
             
             constructor() {
+                // Start loading sequence
+                this.showLoadingScreen();
+                
                 // DOM Elements
                 this.initializeDOMElements();
                 
@@ -873,6 +1032,13 @@
                 
                 // Initialize System
                 this.initializeSystem();
+                
+                // Setup enhancements
+                this.setupKeyboardShortcuts();
+                this.setupThemeToggle();
+                
+                // Complete loading
+                this.hideLoadingScreen();
             }
             
             initializeDOMElements() {
@@ -1680,99 +1846,180 @@
                 const mutationStrength = preset.strength;
                 
                 if (this.random() < mutationRate) {
-                    // Mutate colors
-                    if (this.random() < 0.3) {
-                        const colorIdx = Math.floor(this.random() * genome.colors.length);
-                        genome.colors[colorIdx].h = (genome.colors[colorIdx].h + (this.random() - 0.5) * 60 * mutationStrength) % 360;
-                    }
-                    
-                    // Mutate shapes
-                    if (this.random() < 0.3) {
-                        const shapeIdx = Math.floor(this.random() * genome.shapes.length);
-                        genome.shapes[shapeIdx].x = Math.max(0, Math.min(1, genome.shapes[shapeIdx].x + (this.random() - 0.5) * 0.2 * mutationStrength));
-                        genome.shapes[shapeIdx].y = Math.max(0, Math.min(1, genome.shapes[shapeIdx].y + (this.random() - 0.5) * 0.2 * mutationStrength));
-                    }
-                    
-                    // Mutate movements
-                    if (this.random() < 0.3) {
-                        genome.movements.x = Math.max(-1, Math.min(1, genome.movements.x + (this.random() - 0.5) * 0.1 * mutationStrength));
-                        genome.movements.y = Math.max(-1, Math.min(1, genome.movements.y + (this.random() - 0.5) * 0.1 * mutationStrength));
-                    }
-                    
-                    // Mutate parameters
-                    if (this.random() < 0.3) {
-                        genome.parameters.complexity = Math.max(0, Math.min(1, genome.parameters.complexity + (this.random() - 0.5) * 0.2 * mutationStrength));
-                    }
+                    this.applyMutations(genome, mutationStrength);
                 }
             }
+            
+            applyMutations(genome, strength) {
+                // Apply different types of mutations with equal probability
+                if (this.random() < 0.3) this.mutateColors(genome, strength);
+                if (this.random() < 0.3) this.mutateShapes(genome, strength);
+                if (this.random() < 0.3) this.mutateMovements(genome, strength);
+                if (this.random() < 0.3) this.mutateParameters(genome, strength);
+            }
+            
+            mutateColors(genome, strength) {
+                if (genome.colors.length === 0) return;
+                
+                const colorIdx = Math.floor(this.random() * genome.colors.length);
+                const hueShift = (this.random() - 0.5) * 60 * strength;
+                genome.colors[colorIdx].h = (genome.colors[colorIdx].h + hueShift + 360) % 360;
+            }
+            
+            mutateShapes(genome, strength) {
+                if (genome.shapes.length === 0) return;
+                
+                const shapeIdx = Math.floor(this.random() * genome.shapes.length);
+                const shape = genome.shapes[shapeIdx];
+                
+                // Mutate position
+                const positionDelta = (this.random() - 0.5) * 0.2 * strength;
+                shape.x = Math.max(0, Math.min(1, shape.x + positionDelta));
+                shape.y = Math.max(0, Math.min(1, shape.y + positionDelta));
+            }
+            
+            mutateMovements(genome, strength) {
+                const movementDelta = (this.random() - 0.5) * 0.1 * strength;
+                genome.movements.x = Math.max(-1, Math.min(1, genome.movements.x + movementDelta));
+                genome.movements.y = Math.max(-1, Math.min(1, genome.movements.y + movementDelta));
+            }
+            
+            mutateParameters(genome, strength) {
+                const parameterDelta = (this.random() - 0.5) * 0.2 * strength;
+                genome.parameters.complexity = Math.max(0, Math.min(1, 
+                    genome.parameters.complexity + parameterDelta));
+            }
+            
+            // =================================================================
+            // RENDERING SYSTEM
+            // =================================================================
             
             renderGenome(genome, canvas, time = 0) {
                 const ctx = canvas.getContext('2d');
                 const width = canvas.width;
                 const height = canvas.height;
                 
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.fillRect(0, 0, width, height);
+                // Clear canvas with fade effect
+                this.clearCanvas(ctx, width, height);
                 
+                // Calculate animation time
                 const speed = this.parameters.movementSpeed;
                 const t = time * 0.001 * speed;
                 
+                // Render all shapes in the genome
                 genome.shapes.forEach(shape => {
-                    let x = (shape.x + genome.movements.x * t * 0.5) * width;
-                    let y = (shape.y + genome.movements.y * t * 0.5) * height;
-                    
-                    x = ((x % width) + width) % width;
-                    y = ((y % height) + height) % height;
-                    
-                    const size = Math.max(5, Math.min(200, shape.size * width * (1 + Math.sin(t * genome.movements.pulse * 10) * 0.2)));
-                    const rotation = shape.rotation + genome.movements.rotation * t;
-                    
-                    const colorIdx = Math.floor(Math.abs(Math.sin(shape.x * 10 + t)) * genome.colors.length) % genome.colors.length;
-                    const color = genome.colors[colorIdx];
-                    
-                    ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l}%, ${color.a})`;
-                    ctx.strokeStyle = `hsla(${(color.h + 180) % 360}, ${color.s}%, ${color.l}%, ${color.a})`;
-                    ctx.lineWidth = 2;
-                    
-                    ctx.save();
-                    ctx.translate(x, y);
-                    ctx.rotate(rotation);
-                    
-                    switch (shape.type) {
-                        case 'circle':
-                            ctx.beginPath();
-                            ctx.arc(0, 0, size, 0, Math.PI * 2);
-                            ctx.fill();
-                            ctx.stroke();
-                            break;
-                        case 'rectangle':
-                            ctx.fillRect(-size, -size, size * 2, size * 2);
-                            ctx.strokeRect(-size, -size, size * 2, size * 2);
-                            break;
-                        case 'triangle':
-                            ctx.beginPath();
-                            ctx.moveTo(0, -size);
-                            ctx.lineTo(size, size);
-                            ctx.lineTo(-size, size);
-                            ctx.closePath();
-                            ctx.fill();
-                            ctx.stroke();
-                            break;
-                        case 'line':
-                            ctx.beginPath();
-                            ctx.moveTo(-size, 0);
-                            ctx.lineTo(size, 0);
-                            ctx.stroke();
-                            break;
-                        case 'arc':
-                            ctx.beginPath();
-                            ctx.arc(0, 0, size, 0, Math.PI * (1 + shape.complexity));
-                            ctx.stroke();
-                            break;
-                    }
-                    
-                    ctx.restore();
+                    this.renderShape(ctx, shape, genome, t, width, height);
                 });
+            }
+            
+            clearCanvas(ctx, width, height) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, width, height);
+            }
+            
+            renderShape(ctx, shape, genome, time, width, height) {
+                // Calculate animated position
+                const position = this.calculateAnimatedPosition(shape, genome.movements, time, width, height);
+                
+                // Calculate animated properties
+                const size = this.calculateAnimatedSize(shape, genome.movements, time, width);
+                const rotation = shape.rotation + genome.movements.rotation * time;
+                
+                // Select color based on animation
+                const color = this.selectAnimatedColor(shape, genome.colors, time);
+                
+                // Set up rendering context
+                this.setupRenderingContext(ctx, color);
+                
+                // Render the shape
+                ctx.save();
+                ctx.translate(position.x, position.y);
+                ctx.rotate(rotation);
+                this.drawShape(ctx, shape.type, size, shape.complexity);
+                ctx.restore();
+            }
+            
+            calculateAnimatedPosition(shape, movements, time, width, height) {
+                let x = (shape.x + movements.x * time * 0.5) * width;
+                let y = (shape.y + movements.y * time * 0.5) * height;
+                
+                // Wrap around screen edges
+                x = ((x % width) + width) % width;
+                y = ((y % height) + height) % height;
+                
+                return { x, y };
+            }
+            
+            calculateAnimatedSize(shape, movements, time, width) {
+                const baseSizePixels = shape.size * width;
+                const pulseEffect = 1 + Math.sin(time * movements.pulse * 10) * 0.2;
+                return Math.max(5, Math.min(200, baseSizePixels * pulseEffect));
+            }
+            
+            selectAnimatedColor(shape, colors, time) {
+                const colorIndex = Math.floor(Math.abs(Math.sin(shape.x * 10 + time)) * colors.length);
+                return colors[colorIndex % colors.length];
+            }
+            
+            setupRenderingContext(ctx, color) {
+                ctx.fillStyle = `hsla(${color.h}, ${color.s}%, ${color.l}%, ${color.a})`;
+                ctx.strokeStyle = `hsla(${(color.h + 180) % 360}, ${color.s}%, ${color.l}%, ${color.a})`;
+                ctx.lineWidth = 2;
+            }
+            
+            drawShape(ctx, shapeType, size, complexity) {
+                switch (shapeType) {
+                    case 'circle':
+                        this.drawCircle(ctx, size);
+                        break;
+                    case 'rectangle':
+                        this.drawRectangle(ctx, size);
+                        break;
+                    case 'triangle':
+                        this.drawTriangle(ctx, size);
+                        break;
+                    case 'line':
+                        this.drawLine(ctx, size);
+                        break;
+                    case 'arc':
+                        this.drawArc(ctx, size, complexity);
+                        break;
+                }
+            }
+            
+            drawCircle(ctx, size) {
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            }
+            
+            drawRectangle(ctx, size) {
+                ctx.fillRect(-size, -size, size * 2, size * 2);
+                ctx.strokeRect(-size, -size, size * 2, size * 2);
+            }
+            
+            drawTriangle(ctx, size) {
+                ctx.beginPath();
+                ctx.moveTo(0, -size);
+                ctx.lineTo(size, size);
+                ctx.lineTo(-size, size);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            
+            drawLine(ctx, size) {
+                ctx.beginPath();
+                ctx.moveTo(-size, 0);
+                ctx.lineTo(size, 0);
+                ctx.stroke();
+            }
+            
+            drawArc(ctx, size, complexity) {
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * (1 + complexity));
+                ctx.stroke();
             }
             
             startAnimation() {
@@ -2051,14 +2298,25 @@
                 }
             }
             
+            // =================================================================
+            // UI MANAGEMENT SYSTEM
+            // =================================================================
+            
             updateStats() {
+                this.updateGenerationStats();
+                this.updateProgressBar();
+            }
+            
+            updateGenerationStats() {
                 document.getElementById('generationCount').textContent = this.generation;
                 document.getElementById('bestFitness').textContent = this.stats.bestFitness.toFixed(3);
                 document.getElementById('avgFitness').textContent = this.stats.avgFitness.toFixed(3);
                 document.getElementById('diversity').textContent = this.stats.diversity.toFixed(3);
                 document.getElementById('hallOfFameSize').textContent = this.hallOfFame.length;
                 document.getElementById('currentEnvironment').textContent = this.environments[this.currentEnvironment].name;
-                
+            }
+            
+            updateProgressBar() {
                 const progress = Math.min(100, this.generation / 2);
                 document.getElementById('evolutionProgress').style.width = `${progress}%`;
             }
@@ -2292,103 +2550,99 @@ Preview images show what each genome looks like when rendered.`;
                 }
             }
             
+            // =================================================================
+            // EVENT HANDLING SYSTEM
+            // =================================================================
+            
             setupEventListeners() {
-                // Evolution controls
+                this.setupEvolutionControls();
+                this.setupFileControls();
+                this.setupEnvironmentControls();
+                this.setupMutationControls();
+                this.setupObjectiveControls();
+                this.setupBreedingControls();
+                this.setupSeedControls();
+                this.setupTimelapseControls();
+                this.setupSoundControls();
+                this.setupParameterControls();
+            }
+            
+            setupEvolutionControls() {
                 document.getElementById('evolveBtn').addEventListener('click', () => {
                     this.evolve();
                 });
                 
                 document.getElementById('autoEvolveBtn').addEventListener('click', () => {
-                    this.isEvolving = true;
-                    document.getElementById('autoEvolveBtn').disabled = true;
-                    document.getElementById('stopEvolveBtn').disabled = false;
-                    
-                    this.evolutionInterval = setInterval(() => {
-                        this.evolve();
-                    }, 1000);
+                    this.startAutoEvolution();
                 });
                 
                 document.getElementById('stopEvolveBtn').addEventListener('click', () => {
-                    this.isEvolving = false;
-                    document.getElementById('autoEvolveBtn').disabled = false;
-                    document.getElementById('stopEvolveBtn').disabled = true;
-                    
-                    if (this.evolutionInterval) {
-                        clearInterval(this.evolutionInterval);
-                        this.evolutionInterval = null;
-                    }
+                    this.stopAutoEvolution();
                 });
                 
                 document.getElementById('resetBtn').addEventListener('click', () => {
-                    if (this.evolutionInterval) {
-                        clearInterval(this.evolutionInterval);
-                        this.evolutionInterval = null;
-                    }
-                    
-                    this.isEvolving = false;
-                    document.getElementById('autoEvolveBtn').disabled = false;
-                    document.getElementById('stopEvolveBtn').disabled = true;
-                    
-                    this.initializePopulation();
+                    this.resetEvolution();
                 });
                 
+            }
+            
+            setupFileControls() {
                 document.getElementById('saveBtn').addEventListener('click', () => {
-                    const bestGenome = this.population.reduce((best, current) => 
-                        current.fitness > best.fitness ? current : best
-                    );
-                    
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = this.canvas.width;
-                    tempCanvas.height = this.canvas.height;
-                    
-                    this.renderGenome(bestGenome, tempCanvas, 0);
-                    
-                    const link = document.createElement('a');
-                    link.download = `evolutionary-art-${new Date().getTime()}.png`;
-                    link.href = tempCanvas.toDataURL('image/png');
-                    link.click();
+                    this.saveBestGenome();
+                });
+                
+                document.getElementById('saveSvgBtn').addEventListener('click', () => {
+                    this.saveBestGenomeSVG();
                 });
                 
                 document.getElementById('exportHallOfFame').addEventListener('click', () => {
                     this.exportHallOfFame();
                 });
                 
-                // Environment buttons
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportGenome();
+                });
+                
+                document.getElementById('importBtn').addEventListener('click', () => {
+                    this.importGenome();
+                });
+                
+            }
+            
+            setupEnvironmentControls() {
                 document.querySelectorAll('.environment-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         this.setEnvironment(e.target.dataset.environment);
                     });
                 });
-                
-                // Mutation presets
+            }
+            
+            setupMutationControls() {
                 document.querySelectorAll('.mutation-preset').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         this.setMutationPreset(e.target.dataset.preset);
                     });
                 });
                 
-                // Preset combos
                 document.querySelectorAll('.preset-combo-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         this.setPresetCombo(e.target.dataset.combo);
                     });
                 });
                 
-                // Multi-objective weight sliders
-                document.getElementById('complexityWeight').addEventListener('input', () => {
-                    this.setMultiObjectiveWeights();
-                });
-                document.getElementById('symmetryWeight').addEventListener('input', () => {
-                    this.setMultiObjectiveWeights();
-                });
-                document.getElementById('colorWeight').addEventListener('input', () => {
-                    this.setMultiObjectiveWeights();
-                });
-                document.getElementById('movementWeight').addEventListener('input', () => {
-                    this.setMultiObjectiveWeights();
+            }
+            
+            setupObjectiveControls() {
+                const objectiveSliders = ['complexityWeight', 'symmetryWeight', 'colorWeight', 'movementWeight'];
+                objectiveSliders.forEach(sliderId => {
+                    document.getElementById(sliderId).addEventListener('input', () => {
+                        this.setMultiObjectiveWeights();
+                    });
                 });
                 
-                // Breeding controls
+            }
+            
+            setupBreedingControls() {
                 document.getElementById('breedBtn').addEventListener('click', () => {
                     this.breedSelected();
                 });
@@ -2401,13 +2655,16 @@ Preview images show what each genome looks like when rendered.`;
                     this.cancelBreeding();
                 });
                 
-                // Seed controls
+            }
+            
+            setupSeedControls() {
                 document.getElementById('applySeed').addEventListener('click', () => {
                     const seed = document.getElementById('randomSeed').value;
                     this.setRandomSeed(seed);
                 });
-                
-                // Time-lapse controls
+            }
+            
+            setupTimelapseControls() {
                 document.getElementById('startTimelapse').addEventListener('click', () => {
                     this.startRecording();
                 });
@@ -2415,63 +2672,364 @@ Preview images show what each genome looks like when rendered.`;
                 document.getElementById('stopTimelapse').addEventListener('click', () => {
                     this.stopRecording();
                 });
-                
-                // Sound controls
+            }
+            
+            setupSoundControls() {
                 document.getElementById('toggleSound').addEventListener('click', () => {
-                    this.isSoundEnabled = !this.isSoundEnabled;
-                    document.getElementById('toggleSound').textContent = 
-                        this.isSoundEnabled ? 'Disable Sound' : 'Enable Sound';
-                    
-                    if (this.isSoundEnabled && !this.audioContext) {
-                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    }
+                    this.toggleSoundSystem();
                 });
+            }
+            
+            setupParameterControls() {
+                this.setupMutationRateControl();
+                this.setupPopulationSizeControl();
+                this.setupElitismControl();
+                this.setupTournamentSizeControl();
+                this.setupColorDiversityControl();
+                this.setupMovementSpeedControl();
+                this.setupVolumeControl();
                 
-                // Export/Import
-                document.getElementById('exportBtn').addEventListener('click', () => {
-                    this.exportGenome();
-                });
-                
-                document.getElementById('importBtn').addEventListener('click', () => {
-                    this.importGenome();
-                });
-                
-                // Parameter sliders
+            }
+            
+            setupMutationRateControl() {
                 document.getElementById('mutationRate').addEventListener('input', (e) => {
                     this.parameters.mutationRate = parseFloat(e.target.value);
                     document.getElementById('mutationRateValue').textContent = this.parameters.mutationRate.toFixed(2);
                 });
-                
+            }
+            
+            setupPopulationSizeControl() {
                 document.getElementById('populationSize').addEventListener('input', (e) => {
                     this.parameters.populationSize = parseInt(e.target.value);
                     document.getElementById('populationSizeValue').textContent = this.parameters.populationSize;
                     this.initializePopulation();
                 });
-                
+            }
+            
+            setupElitismControl() {
                 document.getElementById('elitismCount').addEventListener('input', (e) => {
                     this.parameters.elitismCount = parseInt(e.target.value);
                     document.getElementById('elitismCountValue').textContent = this.parameters.elitismCount;
                 });
-                
+            }
+            
+            setupTournamentSizeControl() {
                 document.getElementById('tournamentSize').addEventListener('input', (e) => {
                     this.parameters.tournamentSize = parseInt(e.target.value);
                     document.getElementById('tournamentSizeValue').textContent = this.parameters.tournamentSize;
                 });
-                
+            }
+            
+            setupColorDiversityControl() {
                 document.getElementById('colorDiversity').addEventListener('input', (e) => {
                     this.parameters.colorDiversity = parseFloat(e.target.value);
                     document.getElementById('colorDiversityValue').textContent = this.parameters.colorDiversity.toFixed(1);
                 });
-                
+            }
+            
+            setupMovementSpeedControl() {
                 document.getElementById('movementSpeed').addEventListener('input', (e) => {
                     this.parameters.movementSpeed = parseFloat(e.target.value);
                     document.getElementById('movementSpeedValue').textContent = this.parameters.movementSpeed.toFixed(1);
                 });
-                
+            }
+            
+            setupVolumeControl() {
                 document.getElementById('volume').addEventListener('input', (e) => {
                     this.parameters.volume = parseInt(e.target.value);
                     document.getElementById('volumeValue').textContent = this.parameters.volume + '%';
                 });
+            }
+            
+            // =================================================================
+            // EVENT HANDLER HELPER METHODS
+            // =================================================================
+            
+            startAutoEvolution() {
+                this.isEvolving = true;
+                document.getElementById('autoEvolveBtn').disabled = true;
+                document.getElementById('stopEvolveBtn').disabled = false;
+                
+                this.evolutionInterval = setInterval(() => {
+                    this.evolve();
+                }, 1000);
+            }
+            
+            stopAutoEvolution() {
+                this.isEvolving = false;
+                document.getElementById('autoEvolveBtn').disabled = false;
+                document.getElementById('stopEvolveBtn').disabled = true;
+                
+                if (this.evolutionInterval) {
+                    clearInterval(this.evolutionInterval);
+                    this.evolutionInterval = null;
+                }
+            }
+            
+            resetEvolution() {
+                if (this.evolutionInterval) {
+                    clearInterval(this.evolutionInterval);
+                    this.evolutionInterval = null;
+                }
+                
+                this.isEvolving = false;
+                document.getElementById('autoEvolveBtn').disabled = false;
+                document.getElementById('stopEvolveBtn').disabled = true;
+                
+                this.initializePopulation();
+            }
+            
+            saveBestGenome() {
+                const bestGenome = this.population.reduce((best, current) => 
+                    current.fitness > best.fitness ? current : best
+                );
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                
+                this.renderGenome(bestGenome, tempCanvas, 0);
+                
+                const link = document.createElement('a');
+                link.download = `evolutionary-art-${new Date().getTime()}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            }
+            
+            toggleSoundSystem() {
+                this.isSoundEnabled = !this.isSoundEnabled;
+                document.getElementById('toggleSound').textContent = 
+                    this.isSoundEnabled ? 'Disable Sound' : 'Enable Sound';
+                
+                if (this.isSoundEnabled && !this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            
+            // =================================================================
+            // ENHANCED FEATURES
+            // =================================================================
+            
+            showLoadingScreen() {
+                const progressBar = document.getElementById('loadingProgressBar');
+                const statusText = document.getElementById('loadingStatus');
+                
+                const loadingSteps = [
+                    { progress: 20, text: 'Initializing genetic algorithms...' },
+                    { progress: 40, text: 'Setting up fitness environments...' },
+                    { progress: 60, text: 'Preparing rendering system...' },
+                    { progress: 80, text: 'Loading interface components...' },
+                    { progress: 100, text: 'Ready to evolve!' }
+                ];
+                
+                let currentStep = 0;
+                const updateProgress = () => {
+                    if (currentStep < loadingSteps.length) {
+                        const step = loadingSteps[currentStep];
+                        progressBar.style.width = step.progress + '%';
+                        statusText.textContent = step.text;
+                        currentStep++;
+                        setTimeout(updateProgress, 200);
+                    }
+                };
+                
+                updateProgress();
+            }
+            
+            hideLoadingScreen() {
+                setTimeout(() => {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    loadingScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 1000); // Show "Ready to evolve!" for 1 second
+            }
+            
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Only trigger if not typing in an input field
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                        return;
+                    }
+                    
+                    switch (e.key.toLowerCase()) {
+                        case ' ': // Spacebar - Evolve
+                            e.preventDefault();
+                            this.evolve();
+                            this.showKeyboardHint('Evolved generation!');
+                            break;
+                        case 'r': // R - Reset
+                            e.preventDefault();
+                            this.resetEvolution();
+                            this.showKeyboardHint('Population reset!');
+                            break;
+                        case 's': // S - Save
+                            e.preventDefault();
+                            this.saveBestGenome();
+                            this.showKeyboardHint('Artwork saved!');
+                            break;
+                        case 'v': // V - Save SVG
+                            e.preventDefault();
+                            this.saveBestGenomeSVG();
+                            this.showKeyboardHint('SVG exported!');
+                            break;
+                        case 't': // T - Toggle theme
+                            e.preventDefault();
+                            this.toggleTheme();
+                            break;
+                        case 'a': // A - Auto evolve
+                            e.preventDefault();
+                            if (this.isEvolving) {
+                                this.stopAutoEvolution();
+                                this.showKeyboardHint('Auto evolution stopped');
+                            } else {
+                                this.startAutoEvolution();
+                                this.showKeyboardHint('Auto evolution started');
+                            }
+                            break;
+                    }
+                });
+                
+                // Show keyboard shortcuts on first load
+                setTimeout(() => {
+                    this.showKeyboardHint('Keyboard shortcuts: SPACE=evolve, R=reset, S=save, V=save SVG, T=theme, A=auto', 5000);
+                }, 2000);
+            }
+            
+            showKeyboardHint(message, duration = 2000) {
+                // Remove existing hint
+                const existingHint = document.querySelector('.keyboard-hint');
+                if (existingHint) {
+                    existingHint.remove();
+                }
+                
+                // Create new hint
+                const hint = document.createElement('div');
+                hint.className = 'keyboard-hint';
+                hint.textContent = message;
+                hint.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: var(--panel-bg);
+                    color: var(--text-color);
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-color);
+                    z-index: 1000;
+                    font-size: 0.9rem;
+                    backdrop-filter: blur(10px);
+                    animation: keyboardHintFade 0.3s ease;
+                `;
+                
+                document.body.appendChild(hint);
+                
+                setTimeout(() => {
+                    hint.style.opacity = '0';
+                    hint.style.transform = 'translateX(-50%) translateY(-10px)';
+                    setTimeout(() => hint.remove(), 300);
+                }, duration);
+            }
+            
+            setupThemeToggle() {
+                const themeToggle = document.getElementById('themeToggle');
+                const currentTheme = localStorage.getItem('primordial-theme') || 'dark';
+                
+                // Apply saved theme
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                themeToggle.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+                
+                themeToggle.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+            }
+            
+            toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('primordial-theme', newTheme);
+                
+                const themeToggle = document.getElementById('themeToggle');
+                themeToggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                
+                this.showKeyboardHint(`Switched to ${newTheme} theme`);
+            }
+            
+            saveBestGenomeSVG() {
+                const bestGenome = this.population.reduce((best, current) => 
+                    current.fitness > best.fitness ? current : best
+                );
+                
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // Create SVG content
+                let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+                    <defs>
+                        <style>
+                            .shape { mix-blend-mode: multiply; }
+                        </style>
+                    </defs>
+                    <rect width="100%" height="100%" fill="#000"/>`;
+                
+                const speed = this.parameters.movementSpeed;
+                const t = 0; // Static SVG - no animation
+                
+                bestGenome.shapes.forEach((shape, index) => {
+                    let x = (shape.x + bestGenome.movements.x * t * 0.5) * width;
+                    let y = (shape.y + bestGenome.movements.y * t * 0.5) * height;
+                    
+                    x = ((x % width) + width) % width;
+                    y = ((y % height) + height) % height;
+                    
+                    const size = Math.max(5, Math.min(200, shape.size * width));
+                    const rotation = shape.rotation + bestGenome.movements.rotation * t;
+                    
+                    const colorIdx = Math.floor(Math.abs(Math.sin(shape.x * 10 + t)) * bestGenome.colors.length) % bestGenome.colors.length;
+                    const color = bestGenome.colors[colorIdx];
+                    
+                    const fillColor = `hsla(${color.h}, ${color.s}%, ${color.l}%, ${color.a})`;
+                    const strokeColor = `hsla(${(color.h + 180) % 360}, ${color.s}%, ${color.l}%, ${color.a})`;
+                    
+                    const transform = `translate(${x}, ${y}) rotate(${rotation * 180 / Math.PI})`;
+                    
+                    switch (shape.type) {
+                        case 'circle':
+                            svgContent += `<circle cx="0" cy="0" r="${size}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" class="shape" transform="${transform}"/>`;
+                            break;
+                        case 'rectangle':
+                            svgContent += `<rect x="${-size}" y="${-size}" width="${size * 2}" height="${size * 2}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" class="shape" transform="${transform}"/>`;
+                            break;
+                        case 'triangle':
+                            svgContent += `<polygon points="0,${-size} ${size},${size} ${-size},${size}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" class="shape" transform="${transform}"/>`;
+                            break;
+                        case 'line':
+                            svgContent += `<line x1="${-size}" y1="0" x2="${size}" y2="0" stroke="${strokeColor}" stroke-width="2" class="shape" transform="${transform}"/>`;
+                            break;
+                        case 'arc':
+                            const radius = size;
+                            const endAngle = Math.PI * (1 + shape.complexity);
+                            const endX = radius * Math.cos(endAngle);
+                            const endY = radius * Math.sin(endAngle);
+                            const largeArcFlag = endAngle > Math.PI ? 1 : 0;
+                            svgContent += `<path d="M ${radius} 0 A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}" fill="none" stroke="${strokeColor}" stroke-width="2" class="shape" transform="${transform}"/>`;
+                            break;
+                    }
+                });
+                
+                svgContent += '</svg>';
+                
+                // Download SVG
+                const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+                const link = document.createElement('a');
+                link.download = `evolutionary-art-${new Date().getTime()}.svg`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                URL.revokeObjectURL(link.href);
             }
         }
 
