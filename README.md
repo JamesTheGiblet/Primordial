@@ -2,6 +2,8 @@
 
 An evolutionary art engine that uses genetic algorithms to create unique digital artworks through natural selection. Experience the birth of digital life as abstract art evolves before your eyes!
 
+> 🌟 **New here?** **[→ START_HERE.md](START_HERE.md)** - Perfect introduction with guided pathways!
+
 ## What It Does
 
 Primordial evolves populations of digital organisms (genomes) that represent abstract artworks. Each genome contains:
@@ -13,49 +15,35 @@ Primordial evolves populations of digital organisms (genomes) that represent abs
 
 Through tournament selection, crossover, and mutation, these genomes compete for survival based on aesthetic fitness criteria.
 
+## 📖 Documentation
+
+- **[START_HERE.md](START_HERE.md)** - New to Primordial? Perfect entry point! 🌟
+- **[QUICK_START.md](QUICK_START.md)** - Get running in 5 minutes ⚡
+- **[FEATURES.md](FEATURES.md)** - Complete feature documentation
+- **[PACKAGE_CONTENT.md](PACKAGE_CONTENT.md)** - File manifest & project structure 📦
+- **[README.md](README.md)** - Project overview (this file)
+
 ## ✨ Features
 
-### 🧬 Core Evolution System
+**🧬 Evolution Engine** - 5 fitness environments, multi-objective optimization, hall of fame system
+**🎨 Modern UI** - Dark/light themes, loading screens, keyboard shortcuts, visual feedback
 
-- **5 Fitness Environments** - Balanced, Symmetry, Chaos, Minimalist, Organic
-- **Multi-Objective Optimization** - Custom weight balance across 4 objectives
-- **Hall of Fame** - Auto-saves top performers across generations
-- **Evolution Tracking** - Real-time fitness charts and statistics
-- **Genome Comparison** - Visual and statistical analysis
-- **Seeded Random** - Reproducible evolution experiments
+**� Professional Export** - PNG/SVG downloads, social media integration, batch archives
 
-### 🎨 User Experience
+**🎮 Interactive Controls** - Manual breeding, parameter tuning, real-time environment switching
 
-- **🌙 Dark/Light Mode** - Beautiful theme toggle with smooth transitions
-- **⏳ Loading Screen** - Professional initialization with progress tracking
-- **⌨️ Keyboard Shortcuts** - Power user controls (Space=evolve, R=reset, S=save)
-- **🔔 Visual Feedback** - Elegant notifications for all actions
-- **� Responsive Design** - Works beautifully on all screen sizes
+**📊 Analytics** - Evolution tracking, genome comparison, fitness visualization
 
-### 💾 Export & Sharing
-
-- **🖼️ PNG Export** - High-quality raster artwork downloads
-- **📐 SVG Export** - Vector graphics for professional printing
-- **📦 Hall of Fame Archives** - Bulk export your best evolution results
-- **� Social Media Ready** - Rich meta tags for beautiful link previews
-- **🎯 Favicon** - Tiny evolving shape in your browser tab
-
-### 🎮 Interactive Controls
-
-- **Manual Breeding** - Cross-breed your favorite genomes
-- **Auto Evolution** - Hands-free continuous evolution
-- **Parameter Tuning** - Fine-tune mutation rates, population size, selection pressure
-- **Environment Switching** - Change selection pressure in real-time
+> 📋 **[Complete Features Guide →](FEATURES.md)** - Detailed documentation of all capabilities
 
 ## 🚀 Quick Start
 
 1. **Launch** - Open `index.html` in a modern browser
-2. **Wait** - Enjoy the loading animation as the system initializes
-3. **Evolve** - Click "Auto-Evolve" or press **SPACE** to start evolution
-4. **Explore** - Switch themes with **T** or try different environments
-5. **Save** - Press **S** for PNG or **V** for SVG export
-6. **Favorite** - ⭐ Click stars to save interesting genomes
-7. **Experiment** - Try manual breeding or parameter adjustment
+2. **Evolve** - Click "Auto-Evolve" or press **SPACE**
+3. **Explore** - Try different environments and themes
+4. **Save** - Press **S** (PNG) or **V** (SVG) to export art
+
+> ⚡ **[Complete Quick Start Guide →](QUICK_START.md)** - Get running in 5 minutes with step-by-step instructions, experiments, and pro tips!
 
 ## ⌨️ Keyboard Shortcuts
 
