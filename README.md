@@ -25,7 +25,7 @@ Through tournament selection, crossover, and mutation, these genomes compete for
 
 ## Quick Start
 
-1. Open `index.html` in a modern browser
+1. Open `main.html` in a modern browser
 2. Click "Auto-Evolve" to start evolution
 3. Watch as art emerges from randomness
 4. ⭐ Favorite interesting genomes
