@@ -74,8 +74,3 @@ Because sometimes the best projects come from boredom.
 
 *"From chaos, beauty emerges"*
 ```
-
-
-Features reproducible evolution via seeded random 
-generation, comprehensive genome analysis tools, and 
-automated archiving of top-performing specimens.
