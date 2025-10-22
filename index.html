@@ -33,6 +33,7 @@
             padding: 20px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 15px;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
         
@@ -58,18 +59,18 @@
                 grid-template-columns: 1fr;
             }
         }
-        
         .art-area {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 20px;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-        
         .controls {
             background: rgba(0, 0, 0, 0.2);
             border-radius: 15px;
             padding: 20px;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
@@ -197,6 +198,7 @@
             background: #333;
             outline: none;
             -webkit-appearance: none;
+            appearance: none;
         }
         
         input[type="range"]::-webkit-slider-thumb {
@@ -332,14 +334,16 @@
             align-items: center;
             justify-content: center;
             font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
         .instructions {
             background: rgba(0, 0, 0, 0.2);
             padding: 20px;
             border-radius: 15px;
             margin-top: 30px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+            margin-top: 30px;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
         
@@ -729,7 +733,7 @@
                         <button id="toggleSound" class="sound-toggle">Enable Sound</button>
                         <span id="volumeValue">50%</span>
                     </div>
-                    <input type="range" id="volume" min="0" max="100" value="50">
+                    <input type="range" id="volume" min="0" max="100" value="50" title="Volume Control">
                 </div>
                 
                 <div class="control-group">
@@ -812,9 +816,66 @@
     </div>
 
     <script>
-        // Evolutionary Art System
+        // =====================================================================
+        // EVOLUTIONARY ART GENERATOR - MODULAR ARCHITECTURE
+        // =====================================================================
+        // A sophisticated genetic algorithm system for evolving digital art
+        // Combines canvas rendering, genetic algorithms, and interactive controls
+        // =====================================================================
+
+        // =====================================================================
+        // CONFIGURATION & CONSTANTS
+        // =====================================================================
+        
+        const CONFIG = {
+            CANVAS: {
+                WIDTH: 800,
+                HEIGHT: 500,
+                GALLERY_ITEM_SIZE: 100
+            },
+            DEFAULTS: {
+                MUTATION_RATE: 0.1,
+                POPULATION_SIZE: 12,
+                TOURNAMENT_SIZE: 3,
+                ELITISM_COUNT: 2,
+                COLOR_DIVERSITY: 0.7,
+                MOVEMENT_SPEED: 0.5,
+                VOLUME: 0.5
+            },
+            LIMITS: {
+                MAX_FITNESS_HISTORY: 100,
+                MAX_HALL_OF_FAME: 10,
+                MAX_BREEDING_SELECTION: 2,
+                MAX_GALLERY_DISPLAY: 6
+            }
+        };
+
+        const SHAPE_TYPES = ['circle', 'rectangle', 'triangle', 'line', 'arc'];
+
+        // =====================================================================
+        // MAIN EVOLUTIONARY ART SYSTEM CLASS
+        // =====================================================================
+        
         class EvolutionaryArtSystem {
+            // =================================================================
+            // CONSTRUCTOR & INITIALIZATION
+            // =================================================================
+            
             constructor() {
+                // DOM Elements
+                this.initializeDOMElements();
+                
+                // Core System State
+                this.initializeSystemState();
+                
+                // Configuration Objects
+                this.initializeConfigurations();
+                
+                // Initialize System
+                this.initializeSystem();
+            }
+            
+            initializeDOMElements() {
                 this.canvas = document.getElementById('mainCanvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.gallery = document.getElementById('gallery');
@@ -822,31 +883,53 @@
                 this.breedingControls = document.getElementById('breedingControls');
                 this.diffViewer = document.getElementById('diffViewer');
                 this.evolutionChart = null;
-                
+            }
+            
+            initializeSystemState() {
+                // Evolution State
                 this.generation = 0;
                 this.population = [];
                 this.favorites = [];
                 this.hallOfFame = [];
                 this.selectedForBreeding = [];
+                
+                // System Flags
                 this.isEvolving = false;
                 this.isAnimating = true;
                 this.isSoundEnabled = false;
                 this.isRecording = false;
+                
+                // System Resources
                 this.evolutionInterval = null;
                 this.animationId = null;
                 this.audioContext = null;
                 this.oscillators = [];
                 this.recordingFrames = [];
+                
+                // Random Number Generation
                 this.randomSeed = null;
                 this.customRandom = null;
+                
+                // Statistics & History
                 this.fitnessHistory = {
                     best: [],
                     average: [],
                     diversity: []
                 };
                 
+                this.stats = {
+                    bestFitness: 0,
+                    avgFitness: 0,
+                    diversity: 0
+                };
+            }
+            
+            initializeConfigurations() {
+                // Current System Settings
                 this.currentEnvironment = 'balanced';
                 this.currentMutationPreset = 'balanced';
+                
+                // Multi-Objective Optimization Weights
                 this.multiObjectiveWeights = {
                     complexity: 0.25,
                     symmetry: 0.25,
@@ -854,12 +937,14 @@
                     movement: 0.25
                 };
                 
+                // Mutation Presets
                 this.mutationPresets = {
                     gentle: { rate: 0.05, strength: 0.5 },
                     balanced: { rate: 0.1, strength: 1.0 },
                     chaotic: { rate: 0.3, strength: 2.0 }
                 };
                 
+                // Preset Combinations
                 this.presetCombos = {
                     symmetryGentle: { environment: 'symmetry', mutation: 'gentle' },
                     chaosChaotic: { environment: 'chaos', mutation: 'chaotic' },
@@ -867,6 +952,7 @@
                     organicGentle: { environment: 'organic', mutation: 'gentle' }
                 };
                 
+                // Fitness Environments
                 this.environments = {
                     balanced: {
                         name: 'Balanced',
@@ -895,22 +981,19 @@
                     }
                 };
                 
+                // Evolution Parameters
                 this.parameters = {
-                    mutationRate: 0.1,
-                    populationSize: 12,
-                    tournamentSize: 3,
-                    elitismCount: 2,
-                    colorDiversity: 0.7,
-                    movementSpeed: 0.5,
-                    volume: 0.5
+                    mutationRate: CONFIG.DEFAULTS.MUTATION_RATE,
+                    populationSize: CONFIG.DEFAULTS.POPULATION_SIZE,
+                    tournamentSize: CONFIG.DEFAULTS.TOURNAMENT_SIZE,
+                    elitismCount: CONFIG.DEFAULTS.ELITISM_COUNT,
+                    colorDiversity: CONFIG.DEFAULTS.COLOR_DIVERSITY,
+                    movementSpeed: CONFIG.DEFAULTS.MOVEMENT_SPEED,
+                    volume: CONFIG.DEFAULTS.VOLUME
                 };
-                
-                this.stats = {
-                    bestFitness: 0,
-                    avgFitness: 0,
-                    diversity: 0
-                };
-                
+            }
+            
+            initializeSystem() {
                 this.initializeRandom();
                 this.initializePopulation();
                 this.setupEventListeners();
@@ -919,6 +1002,10 @@
                 this.updateGallery();
                 this.updateFavoritesGallery();
             }
+            
+            // =================================================================
+            // RANDOM NUMBER GENERATION
+            // =================================================================
             
             initializeRandom() {
                 if (this.randomSeed) {
@@ -936,6 +1023,10 @@
                 return this.customRandom();
             }
             
+            // =================================================================
+            // POPULATION MANAGEMENT
+            // =================================================================
+            
             initializePopulation() {
                 this.population = [];
                 const size = this.parameters.populationSize;
@@ -950,6 +1041,10 @@
                 this.updateStats();
                 this.updateChart();
             }
+            
+            // =================================================================
+            // GENOME GENERATION & MANIPULATION
+            // =================================================================
             
             createRandomGenome() {
                 const colorCount = Math.floor(3 + this.random() * 5);
@@ -988,11 +1083,10 @@
             
             generateRandomShapes(count) {
                 const shapes = [];
-                const shapeTypes = ['circle', 'rectangle', 'triangle', 'line', 'arc'];
                 
                 for (let i = 0; i < count; i++) {
                     shapes.push({
-                        type: shapeTypes[Math.floor(this.random() * shapeTypes.length)],
+                        type: SHAPE_TYPES[Math.floor(this.random() * SHAPE_TYPES.length)],
                         x: this.random(),
                         y: this.random(),
                         size: 0.05 + this.random() * 0.2,
@@ -1014,6 +1108,10 @@
                 };
             }
             
+            // =================================================================
+            // FITNESS EVALUATION SYSTEM
+            // =================================================================
+            
             evaluatePopulation() {
                 let totalFitness = 0;
                 let bestFitness = 0;
@@ -1032,23 +1130,31 @@
                     }
                 });
                 
+                this.updateFitnessStats(totalFitness, bestFitness);
+                this.updateFitnessHistory();
+            }
+            
+            updateFitnessStats(totalFitness, bestFitness) {
                 this.stats.avgFitness = totalFitness / this.population.length;
                 this.stats.bestFitness = bestFitness;
                 this.stats.diversity = this.calculateDiversity();
-                
-                // Update fitness history
-                this.fitnessHistory.best.push(bestFitness);
+            }
+            
+            updateFitnessHistory() {
+                this.fitnessHistory.best.push(this.stats.bestFitness);
                 this.fitnessHistory.average.push(this.stats.avgFitness);
                 this.fitnessHistory.diversity.push(this.stats.diversity);
                 
-                // Keep only last 100 generations for chart
-                if (this.fitnessHistory.best.length > 100) {
+                // Keep only last N generations for chart performance
+                const maxHistory = CONFIG.LIMITS.MAX_FITNESS_HISTORY;
+                if (this.fitnessHistory.best.length > maxHistory) {
                     this.fitnessHistory.best.shift();
                     this.fitnessHistory.average.shift();
                     this.fitnessHistory.diversity.shift();
                 }
             }
             
+            // Multi-Objective Fitness Evaluation
             isCustomWeights() {
                 const weights = this.multiObjectiveWeights;
                 return !(weights.complexity === 0.25 && 
@@ -1069,14 +1175,7 @@
                 
                 // Symmetry objective
                 if (weights.symmetry > 0) {
-                    let symmetryScore = 0;
-                    genome.shapes.forEach(shape => {
-                        const distFromCenter = Math.sqrt(
-                            Math.pow(shape.x - 0.5, 2) + Math.pow(shape.y - 0.5, 2)
-                        );
-                        symmetryScore += 1 - distFromCenter;
-                    });
-                    symmetryScore = (symmetryScore / genome.shapes.length) * genome.parameters.symmetry;
+                    const symmetryScore = this.calculateSymmetryScore(genome);
                     fitness += symmetryScore * weights.symmetry;
                 }
                 
@@ -1088,11 +1187,7 @@
                 
                 // Movement objective
                 if (weights.movement > 0) {
-                    const movementScore = (
-                        Math.abs(genome.movements.x) + 
-                        Math.abs(genome.movements.y) + 
-                        Math.abs(genome.movements.pulse)
-                    ) / 3;
+                    const movementScore = this.calculateMovementScore(genome);
                     fitness += movementScore * weights.movement;
                 }
                 
@@ -1102,11 +1197,31 @@
                 return Math.min(1, fitness);
             }
             
+            calculateSymmetryScore(genome) {
+                let symmetryScore = 0;
+                genome.shapes.forEach(shape => {
+                    const distFromCenter = Math.sqrt(
+                        Math.pow(shape.x - 0.5, 2) + Math.pow(shape.y - 0.5, 2)
+                    );
+                    symmetryScore += 1 - distFromCenter;
+                });
+                return (symmetryScore / genome.shapes.length) * genome.parameters.symmetry;
+            }
+            
+            calculateMovementScore(genome) {
+                return (
+                    Math.abs(genome.movements.x) + 
+                    Math.abs(genome.movements.y) + 
+                    Math.abs(genome.movements.pulse)
+                ) / 3;
+            }
+            
+            // Color Harmony Analysis
             evaluateColorHarmony(genome) {
                 if (genome.colors.length < 2) return 0.5;
                 
                 let harmony = 0;
-                // Check for complementary colors
+                // Check for complementary and analogous colors
                 for (let i = 0; i < genome.colors.length; i++) {
                     for (let j = i + 1; j < genome.colors.length; j++) {
                         const diff = Math.abs(genome.colors[i].h - genome.colors[j].h);
@@ -1126,47 +1241,66 @@
                 return Math.min(1, harmony / genome.colors.length);
             }
             
+            // =================================================================
+            // ENVIRONMENT-SPECIFIC FITNESS FUNCTIONS
+            // =================================================================
+            
             evaluateBalanced(genome) {
                 let fitness = 0;
+                
+                // Color variety component
                 const colorVariety = genome.colors.length / 8;
                 fitness += colorVariety * 0.2;
+                
+                // Shape complexity component
                 const shapeComplexity = genome.shapes.length / 10;
                 fitness += shapeComplexity * 0.2;
+                
+                // Parameter balance component
                 const paramBalance = 1 - Math.abs(genome.parameters.complexity - 0.5);
                 fitness += paramBalance * 0.3;
-                const movementScore = (
-                    Math.abs(genome.movements.x) + 
-                    Math.abs(genome.movements.y) + 
-                    Math.abs(genome.movements.pulse)
-                ) / 2;
+                
+                // Movement component
+                const movementScore = this.calculateMovementScore(genome) / 2;
                 fitness += movementScore * 0.2;
+                
+                // Age penalty
                 fitness *= (1 - genome.age * 0.01);
+                
                 return Math.min(1, fitness);
             }
             
             evaluateSymmetry(genome) {
                 let fitness = 0;
-                let symmetryScore = 0;
-                genome.shapes.forEach(shape => {
-                    const distFromCenter = Math.sqrt(
-                        Math.pow(shape.x - 0.5, 2) + Math.pow(shape.y - 0.5, 2)
-                    );
-                    symmetryScore += 1 - distFromCenter;
-                });
-                symmetryScore /= genome.shapes.length;
+                
+                // Symmetry score based on distance from center
+                const symmetryScore = this.calculateSymmetryScore(genome) / genome.shapes.length;
                 fitness += symmetryScore * 0.4;
+                
+                // Symmetry parameter weight
                 fitness += genome.parameters.symmetry * 0.3;
+                
+                // Pattern bonus for more shapes
                 const patternScore = genome.shapes.length > 5 ? 0.2 : 0;
                 fitness += patternScore;
+                
+                // Optimal complexity for symmetry
                 const complexityScore = 1 - Math.abs(genome.parameters.complexity - 0.6);
                 fitness += complexityScore * 0.3;
+                
                 return Math.min(1, fitness);
             }
             
             evaluateChaos(genome) {
                 let fitness = 0;
+                
+                // High complexity reward
                 fitness += genome.parameters.complexity * 0.4;
+                
+                // Many shapes reward
                 fitness += Math.min(0.3, genome.shapes.length / 20);
+                
+                // Chaotic movement reward
                 const chaosMovement = (
                     Math.abs(genome.movements.x) + 
                     Math.abs(genome.movements.y) + 
@@ -1175,45 +1309,61 @@
                     Math.abs(genome.movements.wave)
                 );
                 fitness += Math.min(0.3, chaosMovement);
+                
                 return Math.min(1, fitness);
             }
             
             evaluateMinimalist(genome) {
                 let fitness = 0;
+                
+                // Penalty for too many shapes
                 const shapePenalty = Math.max(0, 1 - (genome.shapes.length / 5));
                 fitness += shapePenalty * 0.4;
+                
+                // Low complexity reward
                 fitness += (1 - genome.parameters.complexity) * 0.3;
-                const subtleMovement = 1 - (
-                    Math.abs(genome.movements.x) + 
-                    Math.abs(genome.movements.y) + 
-                    Math.abs(genome.movements.pulse)
-                );
+                
+                // Subtle movement reward
+                const movementScore = this.calculateMovementScore(genome);
+                const subtleMovement = 1 - movementScore;
                 fitness += Math.max(0, subtleMovement) * 0.3;
+                
                 return Math.min(1, fitness);
             }
             
             evaluateOrganic(genome) {
                 let fitness = 0;
-                let organicScore = 0;
+                
+                // Organic shape bonus
+                let organicShapeScore = 0;
                 genome.shapes.forEach(shape => {
                     if (shape.type === 'circle' || shape.type === 'arc') {
-                        organicScore += 0.1;
+                        organicShapeScore += 0.1;
                     }
                 });
-                fitness += Math.min(0.3, organicScore);
-                let naturalColors = 0;
+                fitness += Math.min(0.3, organicShapeScore);
+                
+                // Natural color bonus
+                let naturalColorScore = 0;
                 genome.colors.forEach(color => {
-                    if ((color.h >= 80 && color.h <= 160) || // Greens
+                    if ((color.h >= 80 && color.h <= 160) ||  // Greens
                         (color.h >= 180 && color.h <= 250) || // Blues
-                        (color.h >= 20 && color.h <= 50)) { // Browns
-                        naturalColors += 0.1;
+                        (color.h >= 20 && color.h <= 50)) {   // Browns
+                        naturalColorScore += 0.1;
                     }
                 });
-                fitness += Math.min(0.3, naturalColors);
+                fitness += Math.min(0.3, naturalColorScore);
+                
+                // Optimal complexity for organic forms
                 const complexityScore = 1 - Math.abs(genome.parameters.complexity - 0.7);
                 fitness += complexityScore * 0.4;
+                
                 return Math.min(1, fitness);
             }
+            
+            // =================================================================
+            // DIVERSITY CALCULATION
+            // =================================================================
             
             calculateDiversity() {
                 if (this.population.length <= 1) return 0;
@@ -1233,13 +1383,19 @@
             }
             
             genomeDistance(g1, g2) {
-                let colorDist = Math.abs(g1.colors.length - g2.colors.length) / 10;
-                let shapeDist = Math.abs(g1.shapes.length - g2.shapes.length) / 10;
-                let paramDist = (
+                // Color diversity component
+                const colorDist = Math.abs(g1.colors.length - g2.colors.length) / 10;
+                
+                // Shape diversity component
+                const shapeDist = Math.abs(g1.shapes.length - g2.shapes.length) / 10;
+                
+                // Parameter diversity component
+                const paramDist = (
                     Math.abs(g1.parameters.complexity - g2.parameters.complexity) +
                     Math.abs(g1.parameters.symmetry - g2.parameters.symmetry) +
                     Math.abs(g1.parameters.rhythm - g2.parameters.rhythm)
                 ) / 3;
+                
                 return (colorDist + shapeDist + paramDist) / 3;
             }
             
@@ -1338,26 +1494,42 @@
                 return Math.min(100, avgDiff * 100);
             }
             
+            // =================================================================
+            // EVOLUTION ENGINE
+            // =================================================================
+            
             evolve() {
                 this.generation++;
                 
-                // Evaluate current population
+                // Evaluate current population fitness
                 this.evaluatePopulation();
                 this.updateHallOfFame();
                 this.updateChart();
                 
-                // Elitism: keep top N genomes
+                // Create new generation
+                const newGeneration = this.createNewGeneration();
+                this.population = newGeneration;
+                
+                // Update system state
+                this.updateStats();
+                this.updateGallery();
+                
+                // Handle optional features
+                this.handleOptionalFeatures();
+            }
+            
+            createNewGeneration() {
                 const newGeneration = [];
+                
+                // Elitism: preserve top performers
                 this.population.sort((a, b) => b.fitness - a.fitness);
                 const elites = this.population.slice(0, this.parameters.elitismCount);
                 newGeneration.push(...elites.map(elite => ({...elite, age: elite.age + 1})));
                 
-                // Tournament selection for the rest
-                const tournamentSize = this.parameters.tournamentSize;
-                
+                // Fill remaining slots with offspring
                 while (newGeneration.length < this.population.length) {
-                    const parent1 = this.tournamentSelect(tournamentSize);
-                    const parent2 = this.tournamentSelect(tournamentSize);
+                    const parent1 = this.tournamentSelect(this.parameters.tournamentSize);
+                    const parent2 = this.tournamentSelect(this.parameters.tournamentSize);
                     const child = this.crossover(parent1, parent2);
                     this.mutate(child);
                     child.age = 0;
@@ -1365,26 +1537,28 @@
                     newGeneration.push(child);
                 }
                 
-                this.population = newGeneration;
-                this.updateStats();
-                this.updateGallery();
-                
-                // Record frame if recording
+                return newGeneration;
+            }
+            
+            handleOptionalFeatures() {
+                // Record frame for time-lapse
                 if (this.isRecording) {
                     this.recordFrame();
                 }
                 
-                // Generate sound if enabled
+                // Generate evolutionary sound
                 if (this.isSoundEnabled) {
                     this.generateSound();
                 }
             }
             
             updateHallOfFame() {
-                // Keep top 3 unique genomes from all generations
-                const currentBest = [...this.population].sort((a, b) => b.fitness - a.fitness).slice(0, 3);
+                // Get top performers from current generation
+                const currentBest = [...this.population]
+                    .sort((a, b) => b.fitness - a.fitness)
+                    .slice(0, 3);
                 
-                // Add to hall of fame if not already there
+                // Add new unique genomes to hall of fame
                 currentBest.forEach(genome => {
                     const exists = this.hallOfFame.some(fame => fame.id === genome.id);
                     if (!exists) {
@@ -1392,14 +1566,19 @@
                     }
                 });
                 
-                // Sort and keep only top 10 overall
+                // Maintain hall of fame size limit
                 this.hallOfFame.sort((a, b) => b.fitness - a.fitness);
-                this.hallOfFame = this.hallOfFame.slice(0, 10);
+                this.hallOfFame = this.hallOfFame.slice(0, CONFIG.LIMITS.MAX_HALL_OF_FAME);
             }
+            
+            // =================================================================
+            // GENETIC OPERATORS
+            // =================================================================
             
             tournamentSelect(tournamentSize) {
                 let best = null;
                 
+                // Tournament selection: pick best from random subset
                 for (let i = 0; i < tournamentSize; i++) {
                     const candidate = this.population[Math.floor(this.random() * this.population.length)];
                     if (!best || candidate.fitness > best.fitness) {
@@ -1411,7 +1590,19 @@
             }
             
             crossover(parent1, parent2) {
-                const child = {
+                const child = this.createEmptyGenome();
+                
+                // Combine genetic material
+                child.colors = this.crossoverColors(parent1, parent2);
+                child.shapes = this.crossoverShapes(parent1, parent2);
+                child.movements = this.crossoverMovements(parent1, parent2);
+                child.parameters = this.crossoverParameters(parent1, parent2);
+                
+                return child;
+            }
+            
+            createEmptyGenome() {
+                return {
                     id: Math.random().toString(36).substring(2, 9),
                     colors: [],
                     shapes: [],
@@ -1422,50 +1613,65 @@
                     isFavorite: false,
                     generationCreated: this.generation
                 };
-                
-                // Combine colors
+            }
+            
+            crossoverColors(parent1, parent2) {
+                const colors = [];
                 const colorCount = Math.max(parent1.colors.length, parent2.colors.length);
+                
                 for (let i = 0; i < colorCount; i++) {
                     if (i < parent1.colors.length && i < parent2.colors.length) {
-                        child.colors.push(this.random() > 0.5 ? 
+                        // Random selection from either parent
+                        colors.push(this.random() > 0.5 ? 
                             {...parent1.colors[i]} : {...parent2.colors[i]});
                     } else if (i < parent1.colors.length) {
-                        child.colors.push({...parent1.colors[i]});
+                        colors.push({...parent1.colors[i]});
                     } else {
-                        child.colors.push({...parent2.colors[i]});
+                        colors.push({...parent2.colors[i]});
                     }
                 }
                 
-                // Combine shapes
+                return colors;
+            }
+            
+            crossoverShapes(parent1, parent2) {
+                const shapes = [];
                 const shapeCount = Math.max(parent1.shapes.length, parent2.shapes.length);
+                
                 for (let i = 0; i < shapeCount; i++) {
                     if (i < parent1.shapes.length && i < parent2.shapes.length) {
-                        child.shapes.push(this.random() > 0.5 ? 
+                        // Random selection from either parent
+                        shapes.push(this.random() > 0.5 ? 
                             {...parent1.shapes[i]} : {...parent2.shapes[i]});
                     } else if (i < parent1.shapes.length) {
-                        child.shapes.push({...parent1.shapes[i]});
+                        shapes.push({...parent1.shapes[i]});
                     } else {
-                        child.shapes.push({...parent2.shapes[i]});
+                        shapes.push({...parent2.shapes[i]});
                     }
                 }
                 
-                // Combine movements and parameters
-                child.movements = {
+                return shapes;
+            }
+            
+            crossoverMovements(parent1, parent2) {
+                // Average the movement parameters
+                return {
                     x: (parent1.movements.x + parent2.movements.x) / 2,
                     y: (parent1.movements.y + parent2.movements.y) / 2,
                     rotation: (parent1.movements.rotation + parent2.movements.rotation) / 2,
                     pulse: (parent1.movements.pulse + parent2.movements.pulse) / 2,
                     wave: (parent1.movements.wave + parent2.movements.wave) / 2
                 };
-                
-                child.parameters = {
+            }
+            
+            crossoverParameters(parent1, parent2) {
+                // Average the evolution parameters
+                return {
                     complexity: (parent1.parameters.complexity + parent2.parameters.complexity) / 2,
                     symmetry: (parent1.parameters.symmetry + parent2.parameters.symmetry) / 2,
                     rhythm: (parent1.parameters.rhythm + parent2.parameters.rhythm) / 2,
                     density: (parent1.parameters.density + parent2.parameters.density) / 2
                 };
-                
-                return child;
             }
             
             mutate(genome) {

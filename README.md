@@ -5,6 +5,7 @@ An evolutionary art engine that uses genetic algorithms to create unique digital
 ## What It Does
 
 Primordial evolves populations of digital organisms (genomes) that represent abstract artworks. Each genome contains:
+
 - **Colors** - Hue, saturation, lightness palettes
 - **Shapes** - Circles, rectangles, triangles, lines, arcs
 - **Movements** - Rotation, translation, pulsing animations
@@ -25,7 +26,7 @@ Through tournament selection, crossover, and mutation, these genomes compete for
 
 ## Quick Start
 
-1. Open `main.html` in a modern browser
+1. Open `index.html` in a modern browser
 2. Click "Auto-Evolve" to start evolution
 3. Watch as art emerges from randomness
 4. ⭐ Favorite interesting genomes
@@ -51,6 +52,7 @@ Each environment rewards different aesthetic qualities:
 ## Technical Details
 
 Built with:
+
 - Vanilla JavaScript (ES6+)
 - HTML5 Canvas for rendering
 - Web Audio API for sound synthesis
@@ -58,6 +60,7 @@ Built with:
 - JSZip for Hall of Fame exports
 
 Genetic algorithm features:
+
 - Tournament selection
 - Single-point crossover
 - Gaussian mutation
@@ -66,11 +69,10 @@ Genetic algorithm features:
 
 ## Origin Story
 
-Built in approximately 4 hours on a mobile device using HTML editor apps. 
+Built in approximately 4 hours on a mobile device using HTML editor apps.
 
 Because sometimes the best projects come from boredom.
 
 ---
 
-*"From chaos, beauty emerges"*
-```
+"From chaos, beauty emerges"
